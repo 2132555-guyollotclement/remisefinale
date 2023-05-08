@@ -1,0 +1,202 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Gestion des tâches API
+  description: API de gestion des tâches. Réalisé dans le cadre d'un projet en Service Web.
+
+servers:
+  - url: http://127.0.0.1/ProjetFinalAPI/
+
+paths:
+  /:
+    get:
+      tags:
+        - Général
+      summary: Message de bienvenue
+      responses:
+        '200':
+          description: Un message de bienvenue
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: "Bienvenue sur l'API de gestion des tâches"
+
+  /taches:
+    get:
+      tags:
+        - Tâches
+      summary: Récupérer la liste des tâches
+      responses:
+        '200':
+          description: Un tableau de toutes les tâches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tache'
+
+    post:
+      tags:
+        - Tâches
+      summary: Créer une nouvelle tâche
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tache'
+      responses:
+        '201':
+          description: Tâche créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tache'
+
+  /taches/{id}:
+    put:
+      tags:
+        - Tâches
+      summary: Mettre à jour une tâche
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Identifiant de la tâche à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tache'
+      responses:
+        '200':
+          description: Tâche mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tache'
+
+    delete:
+      tags:
+        - Tâches
+      summary: Supprimer une tâche
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Identifiant de la tâche à supprimer
+      responses:
+        '204':
+          description: Tâche supprimée
+
+  /api_key:
+    post:
+      tags:
+        - Génération clé API
+      summary: Générer une clé API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+      responses:
+        '201':
+          description: Clé API créée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+        '401':
+          description: Authentification échouée
+
+  /login:
+    post:
+      tags:
+        - Authentification
+      summary: Authentification de l'utilisateur et récupération de la clé API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - username
+                - password
+              example:
+                username: "Mathieu"
+                password: "mypassword"
+      responses:
+        '200':
+          description: Authentification réussie et clé API retournée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+              example:
+                api_key: "abc123"
+        '401':
+          description: Authentification échouée
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+              example:
+                api_key: null
+
+components:
+  schemas:
+    Tache:
+      type: object
+      properties:
+        id:
+          type: integer
+        titre:
+          type: string
+        description:
+          type: string
+        etat:
+          type: boolean
+      required:
+        - titre
+        - description
+        - etat
+      example:
+        id: 1
+        titre: "Faire les courses"
+        description: "Acheter des fruits, légumes et du pain"
+        etat: false
